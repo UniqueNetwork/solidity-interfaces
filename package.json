@@ -1,0 +1,65 @@
+{
+  "name": "solidity-interfaces",
+  "version": "0.0.0",
+  "license": "MIT",
+  "description": "Solidity smart contracts and ethers.js/web3 wrappings for Unique network techonologies",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UniqueNetwork/solidity-interfaces"
+  },
+  "bugs": {
+    "url": "https://github.com/UniqueNetwork/solidity-interfaces/issues"
+  },
+  "homepage": "https://github.com/UniqueNetwork/solidity-interfaces#readme",
+  "scripts": {
+    "clean": "rimraf dist && mkdirp dist",
+    "build:compile": "yarn tsx downloadSolidityInterfaces.ts",
+    "build:tsup": "yarn tsup --config configs/tsup.config.ts",
+    "copy_files": "cpy ./package.json ./README.md ./dist",
+    "build": "yarn clean && yarn build:compile && yarn build:tsup && yarn copy_files",
+    "release:beta": "tsx bumper.mts --beta && npm run copy_files && cd dist && npm publish --tag beta",
+    "release:patch": "tsx bumper.mts --patch && npm run copy_files && cd dist && npm publish"
+  },
+  "devDependencies": {
+    "@typechain/ethers-v5": "^10.1.0",
+    "@typechain/web3-v1": "^6.0.1",
+    "@types/node": "^18.0.6",
+    "@types/semver": "^7.3.13",
+    "commander": "^9.4.1",
+    "cpy-cli": "^4.2.0",
+    "dotenv": "^16.0.1",
+    "dotenv-cli": "^6.0.0",
+    "mkdirp": "^1.0.4",
+    "pkg-versions": "^3.0.0",
+    "release-it": "^15.5.0",
+    "rimraf": "^3.0.2",
+    "semver": "^7.3.8",
+    "solc": "^0.8.15",
+    "tsup": "^6.1.3",
+    "tsx": "^3.11.0",
+    "typechain": "^8.1.0",
+    "typescript": "^4.7.4",
+    "web3": "^1.7.4"
+  },
+  "keywords": [
+    "Unique Network",
+    "NFT",
+    "RFT",
+    "blockchain",
+    "Solidity",
+    "ABI",
+    "Smart contracts",
+    "ERC721",
+    "ERC1633",
+    "ERC20",
+    "Polkadot",
+    "Kusama"
+  ],
+  "dependencies": {
+    "@unique-nft/utils": "^0.1.5",
+    "ethers": "^5.7.2"
+  }
+}
