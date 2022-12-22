@@ -37,7 +37,7 @@ export const downloadFile = async (destination: string, url: string, headers: Ou
 
 const exec = promisify(childProcess.exec)
 
-const DEFAULT_BRANCH = `release-v930032`
+const DEFAULT_BRANCH = `develop`
 const getGithubRepoTreeUrl = (branch: string = DEFAULT_BRANCH) =>
   `https://api.github.com/repos/UniqueNetwork/unique-chain/git/trees/${branch}?recursive=1`
 const getGithubRawFileUrl = (filepath: string, branch: string = DEFAULT_BRANCH) =>
