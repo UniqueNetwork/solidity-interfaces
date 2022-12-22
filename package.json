@@ -1,6 +1,6 @@
 {
   "name": "@unique-nft/solidity-interfaces",
-  "version": "0.0.1",
+  "version": "0.40.0-beta.0",
   "license": "MIT",
   "description": "Solidity smart contracts and ethers.js/web3 wrappings for Unique network techonologies",
   "publishConfig": {
@@ -20,6 +20,7 @@
     "build:tsup": "yarn tsup --config configs/tsup.config.ts",
     "copy_files": "cpy ./package.json ./README.md ./dist",
     "build": "yarn clean && yarn build:compile && yarn build:tsup && yarn copy_files",
+    "release:beta_as_is": "npm run copy_files && cd dist && npm publish --tag beta",
     "release:beta": "tsx bumper.mts --beta && npm run copy_files && cd dist && npm publish --tag beta",
     "release:patch": "tsx bumper.mts --patch && npm run copy_files && cd dist && npm publish"
   },
