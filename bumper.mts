@@ -51,4 +51,4 @@ if (options.beta) {
   packageJson.version = regularNextMajor.format()
 }
 
-await fs.writeFile('./package.json', JSON.stringify(packageJson, null, 2))
+await fs.writeFile('./package.json', JSON.stringify(packageJson, null, 2) + '\n')
