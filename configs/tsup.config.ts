@@ -7,7 +7,7 @@ const coreOptions: Options = {
   target: 'es2020',
   dts: true,
   sourcemap: true,
-  metafile: true,
+  metafile: false,
 }
 
 export default defineConfig([
