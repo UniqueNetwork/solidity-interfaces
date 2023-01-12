@@ -3,7 +3,7 @@ export {constants}
 
 import type {ethers as _Ethers, Signer} from 'ethers'
 type Ethers = typeof _Ethers
-type SignerOrProvider = Signer | _Ethers.providers.Provider
+type SignerOrProvider = Signer | _Ethers.providers.Provider | _Ethers.Wallet
 
 import type {
   CollectionHelpers,
