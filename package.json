@@ -1,6 +1,6 @@
 {
   "name": "@unique-nft/solidity-interfaces",
-  "version": "0.40.1",
+  "version": "0.40.2",
   "license": "MIT",
   "description": "Solidity smart contracts and ethers.js/web3 wrappings for Unique network techonologies",
   "publishConfig": {

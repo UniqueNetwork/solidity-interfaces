@@ -109,7 +109,7 @@ export const UniqueRefungibleTokenFactory = async (tokenIdOrAddress: RefungibleT
 
   return new ethersLib.Contract(
     collectionIdOrAddressToAddress(address),
-    (await import('../dist/abi/UniqueRefungible.json')).default,
+    (await import('../dist/abi/UniqueRefungibleToken.json')).default,
     signerOrProvider
   ) as UniqueFungible
 }
