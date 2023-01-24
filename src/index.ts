@@ -36,16 +36,16 @@ const collectionIdOrAddressToAddress = (collectionIdOrAddress: number | string):
 }
 
 export type RefungibleTokenCollectionAndTokenId = {
-  collectionIdOrAddress: number | string
+  collectionId: number | string
   tokenId: number
 }
 const tokenIdOrAddressToAddress = (tokenIdOrAddress: RefungibleTokenCollectionAndTokenId | string): string => {
   if (typeof tokenIdOrAddress === 'string') {
     return tokenIdOrAddress
   }
-  const collectionId = typeof tokenIdOrAddress.collectionIdOrAddress === 'number'
-    ? tokenIdOrAddress.collectionIdOrAddress
-    : Address.collection.addressToId(tokenIdOrAddress.collectionIdOrAddress)
+  const collectionId = typeof tokenIdOrAddress.collectionId === 'number'
+    ? tokenIdOrAddress.collectionId
+    : Address.collection.addressToId(tokenIdOrAddress.collectionId)
 
   return Address.nesting.idsToAddress(collectionId, tokenIdOrAddress.tokenId)
 }
@@ -111,5 +111,5 @@ export const UniqueRefungibleTokenFactory = async (tokenIdOrAddress: RefungibleT
     collectionIdOrAddressToAddress(address),
     (await import('../dist/abi/UniqueRefungibleToken.json')).default,
     signerOrProvider
-  ) as UniqueFungible
+  ) as UniqueRefungibleToken
 }
