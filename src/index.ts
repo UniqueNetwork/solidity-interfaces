@@ -1,4 +1,4 @@
-import {constants, Address} from '@unique-nft/utils/index'
+import {constants, Address} from '@unique-nft/utils'
 export {constants}
 
 import type {ethers as _Ethers, Signer} from 'ethers'
