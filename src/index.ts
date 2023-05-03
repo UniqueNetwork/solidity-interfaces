@@ -30,9 +30,14 @@ const getEthers = async (ethers?: Ethers): Promise<Ethers> => {
 
 
 const collectionIdOrAddressToAddress = (collectionIdOrAddress: number | string): string => {
-  return typeof collectionIdOrAddress === 'string'
-    ? collectionIdOrAddress
-    : Address.collection.idToAddress(collectionIdOrAddress)
+  if (typeof collectionIdOrAddress === 'number') {
+    return Address.collection.idToAddress(collectionIdOrAddress)
+  } else if (typeof collectionIdOrAddress === 'string') {
+    Address.validate.collectionAddress(collectionIdOrAddress)
+    return collectionIdOrAddress
+  } else {
+    throw new Error('Collection ID or address must be a number or a string')
+  }
 }
 
 export type RefungibleTokenCollectionAndTokenId = {
@@ -41,9 +46,13 @@ export type RefungibleTokenCollectionAndTokenId = {
 }
 const tokenIdOrAddressToAddress = (tokenIdOrAddress: RefungibleTokenCollectionAndTokenId | string): string => {
   if (typeof tokenIdOrAddress === 'string') {
+    Address.validate.collectionAddress(tokenIdOrAddress)
     return tokenIdOrAddress
   }
-  const collectionId = typeof tokenIdOrAddress.collectionId === 'number'
+  if (typeof tokenIdOrAddress !== 'object' || tokenIdOrAddress === null) {
+    throw new Error('tokenIdOrAddress must be a string or a valid object with collectionId and tokenId')
+  }
+  let collectionId = typeof tokenIdOrAddress.collectionId === 'number'
     ? tokenIdOrAddress.collectionId
     : Address.collection.addressToId(tokenIdOrAddress.collectionId)
 
