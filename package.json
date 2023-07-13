@@ -20,8 +20,9 @@
     "build:tsup": "yarn tsup --config configs/tsup.config.ts",
     "copy_files": "cpy ./package.json ./README.md ./dist",
     "build": "yarn clean && yarn build:compile && yarn build:tsup && yarn copy_files",
+    "release": "npm run copy_files && cd dist && npm publish",
     "release:beta_as_is": "npm run copy_files && cd dist && npm publish --tag beta",
-    "release:beta": "tsx bumper.mts --beta && npm run copy_files && cd dist && npm publish --tag beta",
+    "release:beta":  "tsx bumper.mts --beta && npm run copy_files && cd dist && npm publish --tag beta",
     "release:patch": "tsx bumper.mts --patch && npm run copy_files && cd dist && npm publish"
   },
   "devDependencies": {
