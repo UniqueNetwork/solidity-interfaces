@@ -37,13 +37,14 @@ export const downloadFile = async (destination: string, url: string, headers: Ou
 
 const exec = promisify(childProcess.exec)
 
-const DEFAULT_BRANCH = `release-v942057`
+const DEFAULT_BRANCH = `release-v10010064`
 const getGithubRepoTreeUrl = (branch: string = DEFAULT_BRANCH) =>
   `https://api.github.com/repos/UniqueNetwork/unique-chain/git/trees/${branch}?recursive=1`
 const getGithubRawFileUrl = (filepath: string, branch: string = DEFAULT_BRANCH) =>
   `https://raw.githubusercontent.com/UniqueNetwork/unique-chain/${branch}/${filepath}`
 
 const REPO_STUBS_PATH = 'tests/src/eth/api'
+// const REPO_STUBS_PATH = 'js-packages/tests/eth/api'
 const GITHUB_HEADERS = {
   'User-Agent': 'Awesome-Octocat-App',
 }
@@ -78,6 +79,9 @@ const downloadStubs = async (contractsPath: string) => {
         path: stub.path,
       }
     })
+
+  console.log('Stubs:')
+  console.dir(stubs, {depth: 100})
 
   await Promise.all(stubs.map(stub => {
     const destinationPath = path.join(contractsPath, stub.name)
