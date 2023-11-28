@@ -128,30 +128,15 @@ const isEventLog = (log: Log | EventLog): log is EventLog => {
   return !!(log as EventLog).fragment
 }
 
-export const parseEthersV5TxReceipt = <ParsedEvents = any>(tx: ContractTransactionReceipt, options = {decimals: 18}) => {
-  const events = (tx.logs || []).filter(isEventLog).map((event: EventLog, index) => {
-    const args = event.args
+export const parseEthersV6TxReceipt = <ParsedEvents extends Record<string, any>>(tx: ContractTransactionReceipt, options = {decimals: 18}) => {
+  const eventLogs = (tx.logs || []).filter(isEventLog);
 
-    return {
-      name: event.fragment?.name || `event_${index.toString().padStart(4, '0')}`,
-      // args: event.args!,
-      events: !args ? {} : Object.keys(args)
-        .filter(key => isNaN(parseInt(key)))
-        .reduce((acc, key) => {
-          const rawValue = args[key]
+  const events = Object.fromEntries(eventLogs.map((event, index) => {
+    const name = event.fragment?.name || `event_${index.toString().padStart(4, '0')}`
+    const args = event.args ? event.args.toObject() : {}
 
-          // todo - not sure if this is not handled by ethers already
-          acc[key] = (typeof rawValue === 'object' && rawValue?._isBigNumber)
-            ? rawValue.toBigInt()
-            : rawValue
-
-          return acc
-        }, {} as {[K: string]: any})
-    }
-  }).reduce((acc, elem) => {
-    acc[elem.name] = elem.events
-    return acc
-  }, {} as {[K: string]: any}) as ParsedEvents
+    return [name, args];
+  })) as ParsedEvents
 
   const rawPrice = tx.gasUsed * tx.gasPrice
   const priceStr = rawPrice.toString().padStart(options.decimals + 1, '0')

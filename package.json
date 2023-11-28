@@ -62,9 +62,7 @@
     "Kusama"
   ],
   "dependencies": {
-    "@unique-nft/utils": "^0.3.2"
-  },
-  "peerDependencies": {
+    "@unique-nft/utils": "^0.3.2",
     "ethers": "^6.9.0"
   }
 }
