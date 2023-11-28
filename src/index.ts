@@ -3,7 +3,7 @@ export {constants}
 
 import type {ethers as _Ethers, Signer} from 'ethers'
 type Ethers = typeof _Ethers
-type SignerOrProvider = Signer | _Ethers.providers.Provider | _Ethers.Wallet
+type SignerOrProvider = Signer | _Ethers.Provider | _Ethers.Wallet
 
 import type {
   CollectionHelpers,
@@ -28,8 +28,7 @@ const getEthers = async (ethers?: Ethers): Promise<Ethers> => {
   return (await import('ethers')).ethers
 }
 
-
-const collectionIdOrAddressToAddress = (collectionIdOrAddress: number | string): string => {
+const collectionIdOrAddressToAddress = (collectionIdOrAddress: number | string | unknown): string => {
   if (typeof collectionIdOrAddress === 'number') {
     return Address.collection.idToAddress(collectionIdOrAddress)
   } else if (typeof collectionIdOrAddress === 'string') {
@@ -67,8 +66,8 @@ export const CollectionHelpersFactory = async (signerOrProvider: SignerOrProvide
   return new ethersLib.Contract(
     constants.STATIC_ADDRESSES.collectionHelpers,
     (await import('../dist/abi/CollectionHelpers.json')).default,
-    signerOrProvider
-  ) as CollectionHelpers
+    signerOrProvider,
+  ) as unknown as CollectionHelpers
 }
 
 export const ContractHelpersFactory = async (signerOrProvider: SignerOrProvider, ethers?: Ethers) => {
@@ -78,7 +77,7 @@ export const ContractHelpersFactory = async (signerOrProvider: SignerOrProvider,
     constants.STATIC_ADDRESSES.contractHelpers,
     (await import('../dist/abi/ContractHelpers.json')).default,
     signerOrProvider
-  ) as ContractHelpers
+  ) as unknown as ContractHelpers
 }
 
 export const UniqueNFTFactory = async (collectionIdOrAddress: number | string, signerOrProvider: SignerOrProvider, ethers?: Ethers) => {
@@ -88,7 +87,7 @@ export const UniqueNFTFactory = async (collectionIdOrAddress: number | string, s
     collectionIdOrAddressToAddress(collectionIdOrAddress),
     (await import('../dist/abi/UniqueNFT.json')).default,
     signerOrProvider
-  ) as UniqueNFT
+  ) as unknown as UniqueNFT
 }
 
 export const UniqueFungibleFactory = async (collectionIdOrAddress: number | string, signerOrProvider: SignerOrProvider, ethers?: Ethers) => {
@@ -98,7 +97,7 @@ export const UniqueFungibleFactory = async (collectionIdOrAddress: number | stri
     collectionIdOrAddressToAddress(collectionIdOrAddress),
     (await import('../dist/abi/UniqueFungible.json')).default,
     signerOrProvider
-  ) as UniqueFungible
+  ) as unknown as UniqueFungible
 }
 
 export const UniqueRefungibleFactory = async (collectionIdOrAddress: number | string, signerOrProvider: SignerOrProvider, ethers?: Ethers) => {
@@ -108,7 +107,7 @@ export const UniqueRefungibleFactory = async (collectionIdOrAddress: number | st
     collectionIdOrAddressToAddress(collectionIdOrAddress),
     (await import('../dist/abi/UniqueRefungible.json')).default,
     signerOrProvider
-  ) as UniqueFungible
+  ) as unknown as UniqueFungible
 }
 
 export const UniqueRefungibleTokenFactory = async (tokenIdOrAddress: RefungibleTokenCollectionAndTokenId | string, signerOrProvider: SignerOrProvider, ethers?: Ethers) => {
@@ -120,25 +119,32 @@ export const UniqueRefungibleTokenFactory = async (tokenIdOrAddress: RefungibleT
     collectionIdOrAddressToAddress(address),
     (await import('../dist/abi/UniqueRefungibleToken.json')).default,
     signerOrProvider
-  ) as UniqueRefungibleToken
+  ) as unknown as UniqueRefungibleToken
 }
 
-import type {ContractReceipt, Event} from 'ethers'
+import type {ContractTransactionReceipt, EventLog, Log} from 'ethers'
 
-export const parseEthersV5TxReceipt = <ParsedEvents = any>(tx: ContractReceipt, options = {decimals: 18}) => {
-  const events = (tx.events || []).filter(event => !!event.event).map((event: Event, index) => {
+const isEventLog = (log: Log | EventLog): log is EventLog => {
+  return !!(log as EventLog).fragment
+}
+
+export const parseEthersV5TxReceipt = <ParsedEvents = any>(tx: ContractTransactionReceipt, options = {decimals: 18}) => {
+  const events = (tx.logs || []).filter(isEventLog).map((event: EventLog, index) => {
     const args = event.args
+
     return {
-      name: event.event || `event_${index.toString().padStart(4, '0')}`,
+      name: event.fragment?.name || `event_${index.toString().padStart(4, '0')}`,
       // args: event.args!,
       events: !args ? {} : Object.keys(args)
         .filter(key => isNaN(parseInt(key)))
         .reduce((acc, key) => {
           const rawValue = args[key]
-          const value = (typeof rawValue === 'object' && rawValue?._isBigNumber)
+
+          // todo - not sure if this is not handled by ethers already
+          acc[key] = (typeof rawValue === 'object' && rawValue?._isBigNumber)
             ? rawValue.toBigInt()
             : rawValue
-          acc[key] = value
+
           return acc
         }, {} as {[K: string]: any})
     }
@@ -147,7 +153,7 @@ export const parseEthersV5TxReceipt = <ParsedEvents = any>(tx: ContractReceipt, 
     return acc
   }, {} as {[K: string]: any}) as ParsedEvents
 
-  const rawPrice = tx.gasUsed.toBigInt() * tx.effectiveGasPrice.toBigInt()
+  const rawPrice = tx.gasUsed * tx.gasPrice
   const priceStr = rawPrice.toString().padStart(options.decimals + 1, '0')
   const price = parseFloat([priceStr.slice(0, -options.decimals), '.', priceStr.slice(-options.decimals)].join(''))
 
@@ -159,11 +165,11 @@ export const parseEthersV5TxReceipt = <ParsedEvents = any>(tx: ContractReceipt, 
     to: tx.to,
     rawPrice,
     price,
-    rawEvents: tx.events || [],
+    rawEvents: tx.logs || [],
     events,
-    gasUsed: tx.gasUsed.toBigInt(),
-    cumulativeGasUsed: tx.cumulativeGasUsed.toBigInt(),
-    effectiveGasPrice: tx.effectiveGasPrice.toBigInt(),
+    gasUsed: tx.gasUsed,
+    cumulativeGasUsed: tx.cumulativeGasUsed,
+    effectiveGasPrice: tx.gasPrice,
   }
 }
 

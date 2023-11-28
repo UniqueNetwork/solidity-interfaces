@@ -2,7 +2,7 @@
   "name": "@unique-nft/solidity-interfaces",
   "version": "0.64.0",
   "license": "MIT",
-  "description": "Solidity smart contracts and ethers.js/web3 wrappings for Unique network techonologies",
+  "description": "Solidity smart contracts and ethers.js/web3 wrappings for Unique network technologies",
   "publishConfig": {
     "access": "public"
   },
@@ -22,11 +22,12 @@
     "build": "yarn clean && yarn build:compile && yarn build:tsup && yarn copy_files",
     "release": "npm run copy_files && cd dist && npm publish",
     "release:beta_as_is": "npm run copy_files && cd dist && npm publish --tag beta",
-    "release:beta":  "tsx bumper.mts --beta && npm run copy_files && cd dist && npm publish --tag beta",
+    "release:beta": "tsx bumper.mts --beta && npm run copy_files && cd dist && npm publish --tag beta",
     "release:patch": "tsx bumper.mts --patch && npm run copy_files && cd dist && npm publish"
   },
   "devDependencies": {
     "@typechain/ethers-v5": "^10.2.0",
+    "@typechain/ethers-v6": "^0.5.1",
     "@typechain/web3-v1": "^6.0.2",
     "@types/node": "^18.11.17",
     "@types/semver": "^7.3.13",
@@ -61,7 +62,9 @@
     "Kusama"
   ],
   "dependencies": {
-    "@unique-nft/utils": "^0.3.2",
-    "ethers": "^5.7.2"
+    "@unique-nft/utils": "^0.3.2"
+  },
+  "peerDependencies": {
+    "ethers": "^6.9.0"
   }
 }
