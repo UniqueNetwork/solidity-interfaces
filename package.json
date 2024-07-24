@@ -64,5 +64,23 @@
   "dependencies": {
     "@unique-nft/utils": "^0.3.2",
     "ethers": "^6.9.0"
-  }
+  },
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.js",
+      "types": "./index.d.ts"
+    },
+    "./ethers": {
+      "import": "./ethers/index.mjs",
+      "require": "./ethers/index.js",
+      "types": "./ethers/index.d.ts"
+    },
+    "./web3": {
+      "import": "./web3/index.mjs",
+      "require": "./web3/index.js",
+      "types": "./web3/index.d.ts"
+    }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
