@@ -59,9 +59,9 @@ console.log(`Successfully minted token #${tokenId}, it's URI is: ${tokenUri}`)
 
 ### Solidity interfaces and smart contracts and ABI:
 
-`import {...} from '@unique-nft/solidity-abi/contracts'`
+`import {...} from '@unique-nft/solidity-interfaces/contracts'`
 
-`import {...} from '@unique-nft/solidity-abi/abi'`
+`import {...} from '@unique-nft/solidity-interfaces/abi'`
 
 Unique interfaces and smart contracts solidity sources:
 
@@ -89,7 +89,7 @@ import {
   UniqueFungible,
   UniqueRefungible,
   UniqueRefungibleToken,
-} from '@unique-nft/solidity/factory/ethers'
+} from '@unique-nft/solidity-interfaces/ethers'
 ```
 
 ### Web3.js typescript types
@@ -102,7 +102,7 @@ import {
   UniqueFungible,
   UniqueRefungible,
   UniqueRefungibleToken,
-} from '@unique-nft/solidity/factory/web3'
+} from '@unique-nft/solidity-interfaces/web3'
 ```
 
 _note: it requires web3.js installed on your own, web3.js is a peer dependency for this project_
@@ -115,7 +115,7 @@ _note: it requires web3.js installed on your own, web3.js is a peer dependency f
 |contractHelpers|0x842899ECF380553E8a4de75bF534cdf6fBF64049|
 
 ```ts
-import {constants} from '@unique-nft/solidity'
+import {constants} from '@unique-nft/solidity-interfaces'
 
 console.log(constants.STATIC_ADDRESSES.collectionHelpers)
 console.log(constants.STATIC_ADDRESSES.contractHelpers)
