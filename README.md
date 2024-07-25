@@ -8,10 +8,14 @@ import {Address} from '@unique-nft/utils'
 import {
   CollectionHelpersFactory,
   UniqueNFTFactory,
+  parseEthersV6TxReceipt,
 } from '@unique-nft/solidity-interfaces'
 
-const provider = new ethers.providers.JsonRpcProvider('https://rpc-opal.unique.network')
-const wallet = new ethers.Wallet('<Private key>', provider)
+
+const provider = new ethers.JsonRpcProvider('https://rpc-opal.unique.network')
+const wallet = new ethers.Wallet(<Private key>, provider)
+
+console.log(`Going to create a new collection with wallet address ${wallet.address}`)
 
 // or, with browser extension:
 // const provider = new ethers.providers.Web3Provider(window.ethereum)
@@ -27,7 +31,10 @@ const txCreateCollection = await (await collectionHelpers.createNFTCollection(
   {value: await collectionHelpers.collectionCreationFee()}
 )).wait()
 
-const collectionAddress = txCreateCollection.events?.[0].args?.collectionId as string
+const collectionAddress = parseEthersV6TxReceipt(txCreateCollection).events?.CollectionCreated?.collectionId as string
+const collectionId = Address.collection.addressToId(collectionAddress)
+console.log(`Collection #${collectionId} created (address ${collectionAddress})`)
+
 
 // make collection ERC721Metadata compatible, to create necessary properties and activate
 // corresponding supportsInterface and enable mintWithTokenURI and tokenURI methods 
@@ -48,11 +55,12 @@ const txMintToken = await (await collection.mintWithTokenURI(
   'ipfs://QmZ8Syn28bEhZJKYeZCxUTM5Ut74ccKKDbQCqk5AuYsEnp'
 )).wait()
 
-// this .toNumber() type casting is safe because tokenId upper boundary is 2**32
-const tokenId = txMintToken.events?.[0].args?.tokenId.toNumber()
+const parsedMintTx = parseEthersV6TxReceipt(txMintToken)
+const tokenId = parsedMintTx.events?.Transfer.tokenId
+const owner = parsedMintTx.events?.Transfer.to
 const tokenUri = await collection.tokenURI(tokenId)
 
-console.log(`Successfully minted token #${tokenId}, it's URI is: ${tokenUri}`)
+console.log(`Successfully minted token #${tokenId}, it's URI is: ${tokenUri}. Owner: ${owner}`)
 ```
 
 ## Exports
