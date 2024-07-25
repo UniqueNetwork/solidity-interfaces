@@ -2,7 +2,7 @@
   "name": "@unique-nft/solidity-interfaces",
   "version": "0.70.0",
   "license": "MIT",
-  "description": "Solidity smart contracts and ethers.js/web3 wrappings for Unique network techonologies",
+  "description": "Solidity smart contracts and ethers.js/web3 wrappings for Unique network technologies",
   "publishConfig": {
     "access": "public"
   },
@@ -22,11 +22,12 @@
     "build": "yarn clean && yarn build:compile && yarn build:tsup && yarn copy_files",
     "release": "npm run copy_files && cd dist && npm publish",
     "release:beta_as_is": "npm run copy_files && cd dist && npm publish --tag beta",
-    "release:beta":  "tsx bumper.mts --beta && npm run copy_files && cd dist && npm publish --tag beta",
+    "release:beta": "tsx bumper.mts --beta && npm run copy_files && cd dist && npm publish --tag beta",
     "release:patch": "tsx bumper.mts --patch && npm run copy_files && cd dist && npm publish"
   },
   "devDependencies": {
     "@typechain/ethers-v5": "^10.2.0",
+    "@typechain/ethers-v6": "^0.5.1",
     "@typechain/web3-v1": "^6.0.2",
     "@types/node": "^18.11.17",
     "@types/semver": "^7.3.13",
@@ -38,13 +39,13 @@
     "pkg-versions": "^3.0.0",
     "release-it": "^15.5.1",
     "rimraf": "^3.0.2",
-    "semver": "^7.3.8",
+    "semver": "^7.5.2",
     "solc": "^0.8.17",
     "tsup": "^6.5.0",
     "tsx": "^3.12.1",
     "typechain": "^8.1.1",
     "typescript": "^4.9.4",
-    "web3": "^1.8.1"
+    "web3": "^1.10.4"
   },
   "keywords": [
     "Unique Network",
@@ -62,6 +63,26 @@
   ],
   "dependencies": {
     "@unique-nft/utils": "^0.3.2",
-    "ethers": "^5.7.2"
-  }
+    "ethers": "^6.9.0"
+  },
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.js",
+      "types": "./index.d.ts"
+    },
+    "./ethers": {
+      "import": "./ethers/index.mjs",
+      "require": "./ethers/index.js",
+      "types": "./ethers/index.d.ts"
+    },
+    "./web3": {
+      "import": "./web3/index.mjs",
+      "require": "./web3/index.js",
+      "types": "./web3/index.d.ts"
+    },
+    "./contracts/*": "./contracts/*",
+    "./abi/*": "./abi/*"
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

@@ -31,6 +31,11 @@ export const downloadFile = async (destination: string, url: string, headers: Ou
         fileWriteStream.close()
         resolve()
       })
+
+      fileWriteStream.on("error", (err) => {
+        fileWriteStream.close()
+        reject(err)
+      })
     })
   })
 }
@@ -159,7 +164,7 @@ const typeChainEthers = async (abiPath: string, ethersTypesPath: string) => {
   console.log('===============================\n')
 
   const start = Date.now()
-  const {stdout, stderr} = await exec(`typechain --target ethers-v5 --out-dir ${ethersTypesPath} '${abiPath}/*.json'`)
+  const {stdout, stderr} = await exec(`typechain --target ethers-v6 --out-dir ${ethersTypesPath} '${abiPath}/*.json'`)
   const finish = Date.now()
   console.log(`Generated ethers.js typings in ${finish - start}ms:`, stdout)
   if (stderr) {
