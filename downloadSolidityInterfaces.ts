@@ -68,6 +68,8 @@ interface GithubTree {
   }>
 }
 
+const typesToExtract = ['CrossAddress'];
+
 const downloadStubs = async (contractsPath: string) => {
   console.log('\n')
   console.log('=======================================')
@@ -95,10 +97,117 @@ const downloadStubs = async (contractsPath: string) => {
   console.log(`Smart contracts (${stubs.length}) loaded: ${stubs.map(stub => stub.name).join(', ')}`)
 }
 
+const extractTypes = async (contractsPath: string, typesToExtract: string[]): Promise<void> => {
+  console.log('\n')
+  console.log('===================================')
+  console.log('STEP 2: EXTRACTING TYPES')
+  console.log('===================================\n')
+
+  const smartContractsFolderContents = (await fs.readdir(contractsPath)).filter(fileName => fileName.endsWith('.sol'))
+
+  // Object to store type definitions with their comments
+  const typeDefinitions: { [typeName: string]: string } = {}
+  const typeFoundInFiles: { [typeName: string]: string[] } = {}
+
+  for (const fileName of smartContractsFolderContents) {
+    const filePath = path.join(contractsPath, fileName)
+    let fileContents = await fs.readFile(filePath, 'utf8')
+
+    let fileModified = false
+
+    for (const typeName of typesToExtract) {
+      const typePattern = `(?:\\s*(?://[^\n]*\\n|/\\*[\\s\\S]*?\\*/))*\\s*(struct|enum)\\s+${typeName}\\s*\\{[\\s\\S]*?\\}`
+      const typeRegex = new RegExp(typePattern, 'g')
+
+      const matches = []
+      let match
+      while ((match = typeRegex.exec(fileContents)) !== null) {
+        matches.push({
+          fullMatch: match[0],
+          index: match.index,
+          type: match[1],
+        })
+      }
+
+      for (const m of matches) {
+        const typeDefinition = m.fullMatch
+
+        if (!typeDefinitions[typeName]) {
+          typeDefinitions[typeName] = typeDefinition.trim()
+          typeFoundInFiles[typeName] = [fileName]
+        } else {
+          if (typeDefinitions[typeName] !== typeDefinition.trim()) {
+            console.warn(`Type ${typeName} in file ${fileName} differs from the previously found definition.`)
+            // Handle as needed, e.g., throw an error, or pick one definition.
+          } else {
+            typeFoundInFiles[typeName].push(fileName)
+          }
+        }
+
+        // Remove the type definition from the file
+        fileContents = fileContents.slice(0, m.index) + fileContents.slice(m.index + m.fullMatch.length)
+        fileModified = true
+      }
+    }
+
+    if (fileModified) {
+      // Add 'import "./types.sol";' after the pragma statements if not already present
+      if (!fileContents.includes('import "./types.sol";')) {
+        const pragmaRegex = /((?:\s*pragma\s+[^;]+;\s*)+)/g
+        const match = pragmaRegex.exec(fileContents)
+        let indexToInsertImport = 0
+        if (match) {
+          indexToInsertImport = match.index + match[0].length
+        }
+
+        const beforeImport = fileContents.slice(0, indexToInsertImport)
+        const afterImport = fileContents.slice(indexToInsertImport)
+        const importStatement = '\nimport "./types.sol";\n\n'
+        fileContents = beforeImport + importStatement + afterImport
+      }
+
+      // Write the modified file back
+      await fs.writeFile(filePath, fileContents, 'utf8')
+
+      console.log(`Updated ${fileName} to import types from types.sol`)
+    }
+  }
+
+  if (Object.keys(typeDefinitions).length > 0) {
+    // Write the type definitions into types.sol
+    const typesSolPath = path.join(contractsPath, 'types.sol')
+    // Collect unique pragma directives
+    const pragmaDirectives = new Set<string>()
+
+    // Collect pragma directives from the original files
+    for (const fileName of smartContractsFolderContents) {
+      const filePath = path.join(contractsPath, fileName)
+      const fileContents = await fs.readFile(filePath, 'utf8')
+      const pragmaRegex = /pragma\s+[^;]+;/g
+      const pragmaMatches = fileContents.match(pragmaRegex)
+      if (pragmaMatches) {
+        for (const pragma of pragmaMatches) {
+          pragmaDirectives.add(pragma)
+        }
+      }
+    }
+
+    // Prepare the content of types.sol
+    let typesSolContent = '// SPDX-License-Identifier: OTHER\n// This code is automatically generated\n'
+    typesSolContent += Array.from(pragmaDirectives).join('\n') + '\n\n'
+    typesSolContent += Object.values(typeDefinitions).join('\n\n') + '\n'
+
+    await fs.writeFile(typesSolPath, typesSolContent, 'utf8')
+    console.log(`Created types.sol with types: ${Object.keys(typeDefinitions).join(', ')}`)
+  } else {
+    console.log('No specified types found in any of the Solidity files.')
+  }
+}
+
 const compileSmartContracts = async (contractsPath: string, abiPath: string) => {
   console.log('\n')
   console.log('=====================================')
-  console.log('STEP 2: COMPILING SOLIDITY INTERFACES')
+  console.log('STEP 3: COMPILING SOLIDITY INTERFACES')
   console.log('=====================================\n')
 
   const smartContractsFolderContents = (await fs.readdir(contractsPath))
@@ -123,7 +232,7 @@ const compileSmartContracts = async (contractsPath: string, abiPath: string) => 
 const shrinkAbis = async (abiPath: string) => {
   console.log('\n')
   console.log('============================')
-  console.log('STEP 3: SHRINKING EXTRA ABIS')
+  console.log('STEP 4: SHRINKING EXTRA ABIS')
   console.log('============================\n')
 
   const abiFolderContents = (await fs.readdir(abiPath)).filter(f => f.endsWith('.abi'))
@@ -160,7 +269,7 @@ const shrinkAbis = async (abiPath: string) => {
 const typeChainEthers = async (abiPath: string, ethersTypesPath: string) => {
   console.log('\n')
   console.log('===============================')
-  console.log('STEP 4: GENERATING ETHERS TYPES')
+  console.log('STEP 5: GENERATING ETHERS TYPES')
   console.log('===============================\n')
 
   const start = Date.now()
@@ -175,7 +284,7 @@ const typeChainEthers = async (abiPath: string, ethersTypesPath: string) => {
 const typeChainWeb3 = async (abiPath: string, web3TypesPath: string) => {
   console.log('\n')
   console.log('=============================')
-  console.log('STEP 5: GENERATING WEB3 TYPES')
+  console.log('STEP 6: GENERATING WEB3 TYPES')
   console.log('=============================\n')
 
   const start = Date.now()
@@ -223,6 +332,8 @@ const main = async () => {
   await fs.mkdir(web3TypesPath)
 
   await downloadStubs(contractsPath)
+
+  await extractTypes(contractsPath, typesToExtract)
 
   await compileSmartContracts(contractsPath, abiPath)
 
