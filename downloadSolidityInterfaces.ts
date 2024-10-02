@@ -68,7 +68,7 @@ interface GithubTree {
   }>
 }
 
-const typesToExtract = ['CrossAddress', 'AnotherStruct', 'SomeEnum'];
+const typesToExtract = ['CrossAddress'];
 
 const downloadStubs = async (contractsPath: string) => {
   console.log('\n')
